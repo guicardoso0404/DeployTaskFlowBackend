@@ -8,11 +8,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tarefas")
+@Table(
+        name = "tarefas",
+        indexes = @Index(name = "idx_tarefas_status", columnList = "status")
+)
+@DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor

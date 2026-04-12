@@ -5,11 +5,13 @@ import com.gui.taskflow.entity.Tarefa;
 import com.gui.taskflow.exception.TarefaNotFoundException;
 import com.gui.taskflow.repository.TarefaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class TarefaService {
 
     private final TarefaRepository tarefaRepository;
@@ -18,6 +20,7 @@ public class TarefaService {
         this.tarefaRepository = tarefaRepository;
     }
 
+    @Transactional
     public Tarefa criar(Tarefa tarefa) {
         tarefa.setId(null);
         tarefa.setDataCriacao(LocalDateTime.now());
@@ -37,6 +40,7 @@ public class TarefaService {
         return tarefaRepository.findByStatus(status);
     }
 
+    @Transactional
     public Tarefa atualizar(Long id, Tarefa novaTarefa) {
         Tarefa tarefa = buscarPorId(id);
 
@@ -45,9 +49,10 @@ public class TarefaService {
         tarefa.setStatus(novaTarefa.getStatus());
         tarefa.setPrioridade(novaTarefa.getPrioridade());
 
-        return tarefaRepository.save(tarefa);
+        return tarefa;
     }
 
+    @Transactional
     public void deletar(Long id) {
         Tarefa tarefa = buscarPorId(id);
         tarefaRepository.delete(tarefa);
