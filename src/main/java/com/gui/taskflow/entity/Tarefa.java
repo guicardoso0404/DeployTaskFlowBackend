@@ -15,7 +15,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "tarefas",
-        indexes = @Index(name = "idx_tarefas_status", columnList = "status")
+        indexes = {
+                @Index(name = "idx_tarefas_data_criacao_id", columnList = "data_criacao,id"),
+                @Index(name = "idx_tarefas_status_data_criacao", columnList = "status,data_criacao"),
+                @Index(name = "idx_tarefas_prioridade_data_criacao", columnList = "prioridade,data_criacao")
+        }
 )
 @DynamicUpdate
 @Getter

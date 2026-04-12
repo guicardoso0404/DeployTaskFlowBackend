@@ -1,19 +1,28 @@
 package com.gui.taskflow.controller;
 
+import com.gui.taskflow.dto.TarefaResumoResponse;
+import com.gui.taskflow.entity.PrioridadeTarefa;
 import com.gui.taskflow.entity.StatusTarefa;
 import com.gui.taskflow.entity.Tarefa;
 import com.gui.taskflow.service.TarefaService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.List;
 
 @RestController
 @RequestMapping("/tarefas")
 @CrossOrigin(origins = "*")
 public class TarefaController {
+
+    private static final CacheControl LIST_CACHE_CONTROL = CacheControl.maxAge(Duration.ofSeconds(20))
+            .cachePrivate()
+            .mustRevalidate();
 
     private final TarefaService tarefaService;
 
@@ -29,7 +38,21 @@ public class TarefaController {
 
     @GetMapping
     public ResponseEntity<List<Tarefa>> listarTodas() {
-        return ResponseEntity.ok(tarefaService.listarTodas());
+        return ResponseEntity.ok()
+                .cacheControl(LIST_CACHE_CONTROL)
+                .body(tarefaService.listarTodas());
+    }
+
+    @GetMapping("/paginadas")
+    public ResponseEntity<Page<TarefaResumoResponse>> listarPaginadas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) StatusTarefa status,
+            @RequestParam(required = false) PrioridadeTarefa prioridade
+    ) {
+        return ResponseEntity.ok()
+                .cacheControl(LIST_CACHE_CONTROL)
+                .body(tarefaService.listarResumosPaginados(page, size, status, prioridade));
     }
 
     @GetMapping("/{id}")
@@ -39,7 +62,9 @@ public class TarefaController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Tarefa>> listarPorStatus(@PathVariable StatusTarefa status) {
-        return ResponseEntity.ok(tarefaService.listarPorStatus(status));
+        return ResponseEntity.ok()
+                .cacheControl(LIST_CACHE_CONTROL)
+                .body(tarefaService.listarPorStatus(status));
     }
 
     @PutMapping("/{id}")
